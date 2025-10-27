@@ -1,5 +1,5 @@
 
-# math-operations-mcp (mcp-server-3)
+# math-operations-mcp
 
 Short instructions to install dependencies and run the project.
 
@@ -8,6 +8,7 @@ Prerequisites
 
 Create a virtual environment and install dependencies
 
+With python:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -17,14 +18,34 @@ pip install -e .
 # pip install fastapi uvicorn pydantic
 ```
 
+With uv package manager:
+```bash
+# install uv if needed
+pip install uv
+
+# create (and usually activate) a virtual environment
+uv venv
+
+# If uv does not activate the venv automatically, activate it manually:
+# Linux/WSL:
+source .venv/bin/activate
+
+# upgrade pip and install the project
+uv sync
+
+# If the project has no local installable package, install runtime deps directly:
+# pip install fastapi uvicorn pydantic
+```
+
 Run the server
 
 ```bash
-# start with uvicorn (recommended for development)
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-
-# or run directly with python
+# run directly with python
 python main.py
+
+#with uv package manager
+
+uv run main.py
 ```
 
 What to expect
@@ -33,5 +54,6 @@ What to expect
 
 Notes
 - If you run into dependency issues, check the `pyproject.toml` in the repository root and install listed packages manually.
-- On production, run with a process manager (systemd, gunicorn with uvicorn workers, or docker).
 
+
+README.md created with Generative AI.
