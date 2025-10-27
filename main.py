@@ -1,17 +1,24 @@
 from mcp.server.fastmcp import FastMCP, Context
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List
 
-from typing import Dict, List, Any, Literal, Annotated, Union, Optional
-from pydantic import BaseModel, Field
+from dotenv import load_dotenv
+load_dotenv()
 
 from pydantic_models import (
     BatchOp,
     BatchRequest,
     BatchItemResult,
-    BatchResponse,)
+    BatchResponse,
+)
+from middleware.auth import VerifyAuthenticationMiddleware
+from middleware.proc import AddProcessTimeHeaderMiddleware
+
 
 mcp = FastMCP("math-operations", stateless_http=True)
+
+
 
 
 @mcp.tool()
@@ -174,14 +181,18 @@ async def batch(req: BatchRequest, ctx: Context) -> BatchResponse:
                 break
     return BatchResponse(mode=req.mode, results=results)
 
+### FastAPI App Setup
 app = FastAPI(lifespan=lambda _app: mcp.session_manager.run())
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"],  
 )
+app.add_middleware(VerifyAuthenticationMiddleware)
+app.add_middleware(AddProcessTimeHeaderMiddleware)
+
 app.mount("/math", mcp.streamable_http_app())
 
 @app.get("/")
