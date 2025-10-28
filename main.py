@@ -14,6 +14,7 @@ from pydantic_models import (
 )
 from middleware.auth import VerifyAuthenticationMiddleware
 from middleware.proc import AddProcessTimeHeaderMiddleware
+from middleware.log import LoggingMiddleware
 
 
 mcp = FastMCP("math-operations", stateless_http=True)
@@ -168,6 +169,7 @@ async def batch(req: BatchRequest, ctx: Context) -> BatchResponse:
     if req.mode == "parallel":
         import asyncio
         tasks = []
+        print(f"Running batch of {len(req.ops)} ops in parallel.")
         for idx, op in enumerate(req.ops):
             tasks.append(_run_one(idx, op))
         completed = await asyncio.gather(*tasks)
@@ -190,6 +192,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],  
 )
+app.add_middleware(LoggingMiddleware)
 app.add_middleware(VerifyAuthenticationMiddleware)
 app.add_middleware(AddProcessTimeHeaderMiddleware)
 
